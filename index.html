@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudyOS | Unified Academic Copilot</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Card Flip 3D Animation */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-preserve-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-800 font-sans antialiased flex h-screen overflow-hidden">
+
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 select-none">
+    <div>
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 px-2 py-3 mb-6">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-extrabold tracking-tight text-slate-900 flex items-center gap-1.5">
+            Study<span class="text-brand-600">OS</span>
+          </h1>
+          <p class="text-xs text-slate-400 font-medium">Academic Copilot</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition bg-brand-50 text-brand-700">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Command Center</span>
+        </button>
+
+        <button onclick="switchTab('ingest')" id="nav-ingest" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <i data-lucide="file-up" class="w-4 h-4"></i>
+          <span>Syllabus Ingestion</span>
+          <span class="ml-auto text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded-md">AI</span>
+        </button>
+
+        <button onclick="switchTab('recall')" id="nav-recall" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+          <span>Active Recall Studio</span>
+        </button>
+
+        <button onclick="switchTab('courses')" id="nav-courses" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Course Vault</span>
+        </button>
+
+        <button onclick="switchTab('focus')" id="nav-focus" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition text-slate-600 hover:bg-slate-100 hover:text-slate-900">
+          <i data-lucide="timer" class="w-4 h-4"></i>
+          <span>Focus & Pomodoro</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- User Profile & Status -->
+    <div class="pt-4 border-t border-slate-100">
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
+          AK
+        </div>
+        <div class="overflow-hidden">
+          <p class="text-xs font-bold text-slate-800 truncate">Alex Kumar</p>
+          <p class="text-[11px] text-slate-500 font-medium truncate">Computer Science (Yr 3)</p>
+        </div>
+      </div>
+      <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-400 px-1">
+        <span class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          LMS Sync: Active
+        </span>
+        <span>v1.2</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT AREA ==================== -->
+  <main class="flex-1 flex flex-col overflow-y-auto">
+
+    <!-- Top Header Bar -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-200 px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-1.5">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-600 fill-amber-500"></i>
+          <span>Midterm Season: 11 Days Left</span>
+        </div>
+        <span class="text-xs text-slate-400">|</span>
+        <span class="text-xs text-slate-500 font-medium">Next critical deadline: <strong>CS 301 Lab Project (Friday, 11:59 PM)</strong></span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <input type="text" placeholder="Quick search notes, exams, topics..." class="w-64 bg-slate-100 border-none rounded-lg text-xs py-2 pl-8 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition" />
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+        </div>
+        <button class="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50">
+          <i data-lucide="bell" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT TABS -->
+    <div class="p-8 max-w-7xl w-full mx-auto space-y-6">
+
+      <!-- ==================== TAB 1: COMMAND CENTER ==================== -->
+      <section id="tab-dashboard" class="space-y-6">
+        <!-- Hero Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Today's Academic Flight Plan</h2>
+            <p class="text-sm text-slate-500 mt-1">Here is exactly what you need to study today based on your syllabus weights and retention curve.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="switchTab('ingest')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-sm transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Import New Course / Syllabus
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Metric Pillars -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <!-- Metric 1: Study Debt -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Study Debt Index</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Low Risk (8%)</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-extrabold text-slate-900">1.5 hrs</span>
+              <span class="text-xs text-slate-400">behind optimum pace</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+              <div class="bg-emerald-500 h-full rounded-full" style="width: 25%"></div>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">Zero study debt means zero last-minute all-nighters.</p>
+          </div>
+
+          <!-- Metric 2: Today's Target -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Target</span>
+              <i data-lucide="target" class="w-4 h-4 text-brand-600"></i>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-extrabold text-slate-900">65 mins</span>
+              <span class="text-xs text-slate-400">across 2 subjects</span>
+            </div>
+            <p class="text-[12px] text-slate-600 mt-3 font-medium flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-500"></i>
+              2 of 4 micro-sessions completed
+            </p>
+          </div>
+
+          <!-- Metric 3: Retention Score -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Estimated Retention</span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-brand-700">+18% vs cramming</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl font-extrabold text-slate-900">84%</span>
+              <span class="text-xs text-slate-400">Active Recall Score</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3">Calculated via spaced-repetition quiz logs.</p>
+          </div>
+        </div>
+
+        <!-- 2 Column Layout: Today's Tasks & Urgent Radar -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <!-- Left 2 Cols: Prioritized Micro-Study Sessions -->
+          <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Prioritized Daily Action List</h3>
+                <p class="text-xs text-slate-400">Ranked by upcoming exam weightage and memory decay rates</p>
+              </div>
+              <span class="text-xs font-semibold text-slate-500">Auto-balanced by AI</span>
+            </div>
+
+            <!-- Task List -->
+            <div class="space-y-3" id="task-list">
+              <!-- Task Item 1 -->
+              <div class="task-card flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 bg-slate-50/70 transition">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" onchange="toggleTask(this)" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer" />
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700">CS 301</span>
+                      <h4 class="text-xs font-bold text-slate-800 task-title">Review Paxos & Raft Consensus Algorithms</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Midterm weight: 35% • Last reviewed: 4 days ago</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs font-mono font-medium text-slate-500">30 min</span>
+                  <button onclick="switchTab('recall')" class="px-2.5 py-1 bg-white border border-slate-200 hover:border-brand-300 rounded-md text-xs font-semibold text-slate-700 hover:text-brand-600 transition">
+                    Start Flashcards
+                  </button>
+                </div>
+              </div>
+
+              <!-- Task Item 2 -->
+              <div class="task-card flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 bg-slate-50/70 transition">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" onchange="toggleTask(this)" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer" />
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">MATH 220</span>
+                      <h4 class="text-xs font-bold text-slate-800 task-title">Eigenvalues & Diagonalization Practice Set</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Quiz in 3 days • 4 mock questions queued</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs font-mono font-medium text-slate-500">20 min</span>
+                  <button onclick="switchTab('recall')" class="px-2.5 py-1 bg-white border border-slate-200 hover:border-brand-300 rounded-md text-xs font-semibold text-slate-700 hover:text-brand-600 transition">
+                    Quiz Me
+                  </button>
+                </div>
+              </div>
+
+              <!-- Task Item 3 -->
+              <div class="task-card flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 bg-slate-50/70 transition">
+                <div class="flex items-center gap-3">
+                  <input type="checkbox" checked onchange="toggleTask(this)" class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500 border-slate-300 cursor-pointer" />
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700">AI 402</span>
+                      <h4 class="text-xs font-bold text-slate-800 line-through text-slate-400 task-title">Backpropagation & Gradient Descent Derivations</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Completed at 10:15 AM • 92% retention accuracy</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs font-mono font-medium text-slate-400">15 min</span>
+                  <span class="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Done
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 1 Col: Unified Deadlines Radar -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-slate-900 text-base">Deadlines Radar</h3>
+              <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+            </div>
+            <p class="text-xs text-slate-400 -mt-2">Parsed automatically from uploaded syllabi & LMS sync.</p>
+
+            <div class="space-y-3">
+              <!-- Deadline 1 -->
+              <div class="p-3 rounded-xl border-l-4 border-l-red-500 bg-red-50/40 border border-slate-100">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-red-100 text-red-700">High Weight (25%)</span>
+                  <span class="text-xs font-bold text-red-600">In 2 Days</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-800 mt-1.5">CS 301: Distributed Lab 2</h5>
+                <p class="text-[11px] text-slate-500">Submission portal: Canvas LMS</p>
+              </div>
+
+              <!-- Deadline 2 -->
+              <div class="p-3 rounded-xl border-l-4 border-l-amber-500 bg-amber-50/40 border border-slate-100">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">Quiz (10%)</span>
+                  <span class="text-xs font-bold text-amber-600">In 4 Days</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-800 mt-1.5">MATH 220: Linear Algebra Quiz 3</h5>
+                <p class="text-[11px] text-slate-500">In-person: Hall B, 10:00 AM</p>
+              </div>
+
+              <!-- Deadline 3 -->
+              <div class="p-3 rounded-xl border-l-4 border-l-brand-500 bg-indigo-50/30 border border-slate-100">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-brand-100 text-brand-700">Major Exam (40%)</span>
+                  <span class="text-xs font-bold text-slate-600">In 11 Days</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-800 mt-1.5">AI 402: Midterm Examination</h5>
+                <p class="text-[11px] text-slate-500">Covers Chapters 1 - 6</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: SYLLABUS & DOC INGESTION ==================== -->
+      <section id="tab-ingest" class="hidden space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Smart Syllabus Ingestion Engine</h2>
+          <p class="text-sm text-slate-500 mt-1">Upload messy course syllabi, lecture slides, or grading rubrics. Our parser extracts deadlines, grade weights, and learning goals instantly.</p>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div class="border-2 border-dashed border-slate-300 hover:border-brand-500 bg-white rounded-2xl p-8 text-center transition cursor-pointer group">
+          <div class="w-14 h-14 mx-auto rounded-full bg-brand-50 flex items-center justify-center text-brand-600 group-hover:scale-110 transition">
+            <i data-lucide="upload-cloud" class="w-7 h-7"></i>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800 mt-3">Drop Syllabus PDF, Lecture Slides, or Notes here</h3>
+          <p class="text-xs text-slate-400 mt-1">Supports PDF, DOCX, PPTX, or paste syllabus link from Blackboard/Moodle/Canvas</p>
+          <div class="mt-4 flex items-center justify-center gap-3">
+            <button class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Browse Files</button>
+            <button onclick="simulateUpload()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-lg transition">Simulate Demo Upload (CS 301)</button>
+          </div>
+        </div>
+
+        <!-- Uploaded Documents & Parsing Status -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-900 text-sm">Extracted Course Blueprints</h3>
+            <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+              <i data-lucide="check-check" class="w-4 h-4"></i> 3 Courses Parsed & Scheduled
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Course</th>
+                  <th class="py-3 px-4">Source Document</th>
+                  <th class="py-3 px-4">Extracted Milestones</th>
+                  <th class="py-3 px-4">Grading Formula</th>
+                  <th class="py-3 px-4">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr>
+                  <td class="py-3 px-4 font-bold text-slate-900">CS 301: Distributed Systems</td>
+                  <td class="py-3 px-4 text-slate-500 font-mono">Syllabus_Fall2026.pdf (14 pgs)</td>
+                  <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-bold">12 Deadlines</span></td>
+                  <td class="py-3 px-4 text-slate-600">Midterm (30%), Labs (40%), Final (30%)</td>
+                  <td class="py-3 px-4">
+                    <button class="text-brand-600 hover:underline font-bold">View Timeline</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 font-bold text-slate-900">MATH 220: Linear Algebra</td>
+                  <td class="py-3 px-4 text-slate-500 font-mono">Math220_Grading_Policy.pdf</td>
+                  <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold">8 Quizzes</span></td>
+                  <td class="py-3 px-4 text-slate-600">Quizzes (30%), Mid (30%), Final (40%)</td>
+                  <td class="py-3 px-4">
+                    <button class="text-brand-600 hover:underline font-bold">View Timeline</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="py-3 px-4 font-bold text-slate-900">AI 402: Machine Learning</td>
+                  <td class="py-3 px-4 text-slate-500 font-mono">AI402_Lecture_Schedule.docx</td>
+                  <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-purple-100 text-purple-700 font-bold">6 Milestones</span></td>
+                  <td class="py-3 px-4 text-slate-600">Term Paper (25%), Mid (35%), Final (40%)</td>
+                  <td class="py-3 px-4">
+                    <button class="text-brand-600 hover:underline font-bold">View Timeline</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3: ACTIVE RECALL STUDIO ==================== -->
+      <section id="tab-recall" class="hidden space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Active Recall Studio</h2>
+            <p class="text-sm text-slate-500 mt-1">Stop passive re-reading. Practice interactive spaced-repetition flashcards and dynamic exam-style questions.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-500">Course Filter:</span>
+            <select class="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option>CS 301: Distributed Systems</option>
+              <option>MATH 220: Linear Algebra</option>
+              <option>AI 402: Machine Learning</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Flashcard Player (3D Flip) -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-50 text-brand-700">Spaced Repetition (Box 3)</span>
+                <span class="text-xs font-mono text-slate-400" id="card-counter">Card 1 of 5</span>
+              </div>
+
+              <!-- Interactive Card -->
+              <div onclick="flipCard()" class="perspective-1000 h-64 cursor-pointer select-none">
+                <div id="flashcard" class="relative w-full h-full duration-500 transform-style-preserve-3d transition-transform">
+                  <!-- Front Side -->
+                  <div class="absolute inset-0 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-2xl p-6 flex flex-col justify-between backface-hidden shadow-md">
+                    <span class="text-[10px] tracking-widest font-mono uppercase text-indigo-300">QUESTION / CONCEPT</span>
+                    <p class="text-lg font-bold text-center my-auto leading-relaxed" id="card-front">
+                      What is the difference between Safety and Liveness properties in a distributed consensus algorithm?
+                    </p>
+                    <p class="text-[11px] text-indigo-300 text-center flex items-center justify-center gap-1">
+                      <i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Click anywhere to flip & see answer
+                    </p>
+                  </div>
+
+                  <!-- Back Side -->
+                  <div class="absolute inset-0 bg-white border-2 border-brand-500 text-slate-800 rounded-2xl p-6 flex flex-col justify-between backface-hidden rotate-y-180 shadow-md">
+                    <span class="text-[10px] tracking-widest font-mono uppercase text-brand-600 font-bold">VERIFIED ANSWER</span>
+                    <div class="my-auto text-sm leading-relaxed" id="card-back">
+                      <p><strong>Safety:</strong> "Nothing bad happens" (e.g., two distinct nodes will never decide on different values at the same slot).</p>
+                      <p class="mt-2"><strong>Liveness:</strong> "Something good eventually happens" (e.g., the system guarantees it will eventually reach a decision).</p>
+                    </div>
+                    <p class="text-[11px] text-slate-400 text-center">Reference: Lecture 4, Slide 22</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recall Rating Buttons -->
+            <div class="grid grid-cols-3 gap-3 mt-6">
+              <button onclick="nextCard(false)" class="py-2.5 px-3 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition flex items-center justify-center gap-1.5">
+                <i data-lucide="x-circle" class="w-4 h-4"></i> Hard (Repeat)
+              </button>
+              <button onclick="nextCard(true)" class="py-2.5 px-3 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition flex items-center justify-center gap-1.5">
+                <i data-lucide="clock" class="w-4 h-4"></i> Moderate
+              </button>
+              <button onclick="nextCard(true)" class="py-2.5 px-3 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition flex items-center justify-center gap-1.5">
+                <i data-lucide="check-circle" class="w-4 h-4"></i> Mastered
+              </button>
+            </div>
+          </div>
+
+          <!-- Mock Exam Quiz Generator -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-xs font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-700">Exam-Style Simulation</span>
+                <span class="text-xs font-semibold text-slate-400">Targeting Midterm Scope</span>
+              </div>
+
+              <h4 class="text-sm font-bold text-slate-900 leading-snug">
+                Q1: In the Raft consensus protocol, what happens when a Follower receives no heartbeat from a Leader before the election timeout expires?
+              </h4>
+
+              <!-- Quiz Options -->
+              <div class="space-y-2.5 mt-4" id="quiz-options">
+                <button onclick="selectOption(this, false)" class="quiz-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-brand-300 text-xs text-slate-700 font-medium transition flex items-center justify-between">
+                  <span>A) It immediately shuts down to prevent network split-brain.</span>
+                  <i data-lucide="circle" class="w-4 h-4 text-slate-300"></i>
+                </button>
+                <button onclick="selectOption(this, true)" class="quiz-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-brand-300 text-xs text-slate-700 font-medium transition flex items-center justify-between">
+                  <span>B) It increments its current term, transitions to Candidate, and requests votes.</span>
+                  <i data-lucide="circle" class="w-4 h-4 text-slate-300"></i>
+                </button>
+                <button onclick="selectOption(this, false)" class="quiz-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:border-brand-300 text-xs text-slate-700 font-medium transition flex items-center justify-between">
+                  <span>C) It assumes leadership automatically without an election.</span>
+                  <i data-lucide="circle" class="w-4 h-4 text-slate-300"></i>
+                </button>
+              </div>
+
+              <div id="quiz-explanation" class="hidden mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
+                <strong>Correct!</strong> Followers assume the leader has failed when election timeouts elapse, transitioning to Candidates to initiate a new election.
+              </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-100">
+              <span class="text-xs text-slate-400">Generated from <em>Lec03_Consensus.pdf</em></span>
+              <button onclick="resetQuiz()" class="text-xs font-bold text-brand-600 hover:text-brand-700">Next Question →</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4: COURSE VAULT ==================== -->
+      <section id="tab-courses" class="hidden space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Course Knowledge Vault</h2>
+          <p class="text-sm text-slate-500 mt-1">All your notes, lecture slides, formulas, and mock questions sorted by course.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Course Card 1 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-brand-300 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-xs">CS</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Grade Target: A</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-3">CS 301: Distributed Systems</h3>
+              <p class="text-xs text-slate-400 mt-1">Prof. Elena Vance • MWF 11:00 AM</p>
+
+              <div class="mt-4 space-y-2 text-xs text-slate-600">
+                <div class="flex justify-between">
+                  <span>Syllabus Coverage:</span>
+                  <span class="font-bold text-slate-800">68%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-blue-600 h-full rounded-full" style="width: 68%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-400">42 Flashcards</span>
+              <button onclick="switchTab('recall')" class="font-bold text-brand-600 hover:underline">Open Studio →</button>
+            </div>
+          </div>
+
+          <!-- Course Card 2 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-brand-300 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-xs">MA</span>
+                <span class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Grade Target: A-</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-3">MATH 220: Linear Algebra</h3>
+              <p class="text-xs text-slate-400 mt-1">Prof. David Thorne • TR 2:00 PM</p>
+
+              <div class="mt-4 space-y-2 text-xs text-slate-600">
+                <div class="flex justify-between">
+                  <span>Syllabus Coverage:</span>
+                  <span class="font-bold text-slate-800">82%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-emerald-600 h-full rounded-full" style="width: 82%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-400">30 Flashcards</span>
+              <button onclick="switchTab('recall')" class="font-bold text-brand-600 hover:underline">Open Studio →</button>
+            </div>
+          </div>
+
+          <!-- Course Card 3 -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:border-brand-300 transition flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-xs">AI</span>
+                <span class="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">Grade Target: A</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-3">AI 402: Machine Learning</h3>
+              <p class="text-xs text-slate-400 mt-1">Prof. Sarah Jenkins • MWF 3:30 PM</p>
+
+              <div class="mt-4 space-y-2 text-xs text-slate-600">
+                <div class="flex justify-between">
+                  <span>Syllabus Coverage:</span>
+                  <span class="font-bold text-slate-800">55%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-purple-600 h-full rounded-full" style="width: 55%"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-400">58 Flashcards</span>
+              <button onclick="switchTab('recall')" class="font-bold text-brand-600 hover:underline">Open Studio →</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ==================== TAB 5: FOCUS & POMODORO ==================== -->
+      <section id="tab-focus" class="hidden space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Deep Focus Chamber</h2>
+          <p class="text-sm text-slate-500 mt-1">Block distractions, link your study time directly to syllabus objectives, and eliminate study debt.</p>
+        </div>
+
+        <div class="max-w-xl mx-auto bg-white rounded-3xl border border-slate-200 p-8 shadow-sm text-center">
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-brand-50 text-brand-700">Sprint 1 of 4: CS 301</span>
+
+          <!-- Big Timer Display -->
+          <div class="my-8">
+            <span id="timer-display" class="font-mono text-7xl font-extrabold text-slate-900 tracking-tight">25:00</span>
+            <p class="text-xs text-slate-400 mt-2">Recommended: 25 min Active Recall + 5 min break</p>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center justify-center gap-4">
+            <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-36 py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md shadow-brand-500/20 transition flex items-center justify-center gap-2">
+              <i data-lucide="play" class="w-4 h-4 fill-white" id="timer-icon"></i>
+              <span id="timer-btn-text">Start Focus</span>
+            </button>
+            <button onclick="resetTimer()" class="w-24 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm transition">
+              Reset
+            </button>
+          </div>
+
+          <!-- Ambient Audio Mode -->
+          <div class="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-2">
+              <i data-lucide="headphones" class="w-4 h-4 text-slate-400"></i>
+              Binaural Alpha Waves (Focus)
+            </span>
+            <span class="text-brand-600 font-bold cursor-pointer hover:underline">Change Ambience</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==================== LOGIC JAVASCRIPT ==================== -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Tab Switching System
+    function switchTab(tabId) {
+      const tabs = ['dashboard', 'ingest', 'recall', 'courses', 'focus'];
+      tabs.forEach(t => {
+        const el = document.getElementById(`tab-${t}`);
+        const nav = document.getElementById(`nav-${t}`);
+        if (t === tabId) {
+          el.classList.remove('hidden');
+          nav.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition bg-brand-50 text-brand-700';
+        } else {
+          el.classList.add('hidden');
+          nav.className = 'nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition text-slate-600 hover:bg-slate-100 hover:text-slate-900';
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // Toggle Task Complete in Dashboard
+    function toggleTask(checkbox) {
+      const title = checkbox.closest('.task-card').querySelector('.task-title');
+      if (checkbox.checked) {
+        title.classList.add('line-through', 'text-slate-400');
+      } else {
+        title.classList.remove('line-through', 'text-slate-400');
+      }
+    }
+
+    // Flashcard Flip State
+    let isFlipped = false;
+    function flipCard() {
+      const card = document.getElementById('flashcard');
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        card.classList.add('rotate-y-180');
+      } else {
+        card.classList.remove('rotate-y-180');
+      }
+    }
+
+    // Sample Flashcard Deck
+    const flashcards = [
+      {
+        front: "What is the difference between Safety and Liveness properties in distributed consensus?",
+        back: "<strong>Safety:</strong> 'Nothing bad happens' (nodes never decide conflicting values).<br><br><strong>Liveness:</strong> 'Something good eventually happens' (nodes eventually reach a final decision)."
+      },
+      {
+        front: "What is the CAP Theorem trade-off during a network partition (P)?",
+        back: "You must choose between <strong>Consistency (C)</strong> (refusing requests to avoid stale data) or <strong>Availability (A)</strong> (accepting reads/writes but risking inconsistent state)."
+      },
+      {
+        front: "In Linear Algebra, what is an Eigenvector?",
+        back: "A non-zero vector \\(v\\) whose direction does not change when a linear transformation \\(A\\) is applied: \\(A v = \\lambda v\\), where \\(\\lambda\\) is the eigenvalue."
+      }
+    ];
+
+    let currentCardIndex = 0;
+    function nextCard(success) {
+      const card = document.getElementById('flashcard');
+      card.classList.remove('rotate-y-180');
+      isFlipped = false;
+
+      currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+      setTimeout(() => {
+        document.getElementById('card-front').innerHTML = flashcards[currentCardIndex].front;
+        document.getElementById('card-back').innerHTML = flashcards[currentCardIndex].back;
+        document.getElementById('card-counter').innerText = `Card ${currentCardIndex + 1} of ${flashcards.length}`;
+      }, 200);
+    }
+
+    // Quiz Selection System
+    function selectOption(button, isCorrect) {
+      const buttons = document.querySelectorAll('.quiz-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-red-500', 'bg-red-50');
+      });
+
+      const explanation = document.getElementById('quiz-explanation');
+      if (isCorrect) {
+        button.classList.add('border-emerald-500', 'bg-emerald-50');
+        explanation.classList.remove('hidden');
+      } else {
+        button.classList.add('border-red-500', 'bg-red-50');
+        explanation.classList.add('hidden');
+      }
+    }
+
+    function resetQuiz() {
+      const buttons = document.querySelectorAll('.quiz-btn');
+      buttons.forEach(btn => {
+        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-red-500', 'bg-red-50');
+      });
+      document.getElementById('quiz-explanation').classList.add('hidden');
+      alert("Generated next syllabus-aligned question from Chapter 4!");
+    }
+
+    // Pomodoro Timer Logic
+    let timerDuration = 25 * 60;
+    let timerRunning = false;
+    let timerInterval = null;
+
+    function toggleTimer() {
+      const btnText = document.getElementById('timer-btn-text');
+      const icon = document.getElementById('timer-icon');
+
+      if (!timerRunning) {
+        timerRunning = true;
+        btnText.innerText = "Pause";
+        icon.setAttribute('data-lucide', 'pause');
+        timerInterval = setInterval(() => {
+          if (timerDuration > 0) {
+            timerDuration--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            alert("Focus session completed! Great job chipping away at your study debt.");
+            resetTimer();
+          }
+        }, 1000);
+      } else {
+        timerRunning = false;
+        clearInterval(timerInterval);
+        btnText.innerText = "Resume";
+        icon.setAttribute('data-lucide', 'play');
+      }
+      lucide.createIcons();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerDuration = 25 * 60;
+      updateTimerDisplay();
+      document.getElementById('timer-btn-text').innerText = "Start Focus";
+      const icon = document.getElementById('timer-icon');
+      icon.setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timerDuration / 60);
+      const seconds = timerDuration % 60;
+      document.getElementById('timer-display').innerText = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Ingestion Simulation
+    function simulateUpload() {
+      alert("Parsing 'CS301_Distributed_Systems.pdf'...\n✓ Extracted 3 Exams, 4 Labs\n✓ Found Grading Criteria (Midterm 30%, Labs 40%, Final 30%)\n✓ Created 42 Active-Recall Flashcards\n✓ Scheduled into Command Center!");
+      switchTab('dashboard');
+    }
+  </script>
+</body>
+</html>

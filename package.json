@@ -2,12 +2,5 @@
   "name": "study-os",
   "version": "1.0.0",
   "description": "StudyOS - Unified Academic Copilot",
-  "main": "index.html",
-  "scripts": {
-    "build": "echo 'Build successful'",
-    "start": "npx serve ."
-  },
-  "keywords": ["education", "study", "productivity"],
-  "author": "StudyOS Team",
-  "license": "MIT"
+  "main": "index.html"
 }
